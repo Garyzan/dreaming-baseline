@@ -92,7 +92,7 @@ def run():
         
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        size = (432, 240)
+        size = (864, 480)
 
         net = importlib.import_module('model.e2fgvi_hq')
         model = net.InpaintGenerator().to(device)
@@ -113,7 +113,7 @@ def run():
         with open("/output/test.txt", "a") as f:
             f.write(str(np.bincount(np.reshape(tmasks[0], (-1)))) + "\n")
 
-        sub_len = 48
+        sub_len = 32
         num_subvideos = (video_length // sub_len) + 1
         tmasks = [tmasks[sub_len * k : sub_len*(k+1)] for k in range(num_subvideos-1)] + ([tmasks[num_subvideos*sub_len:]])
         bmasks = [bmasks[sub_len * k : sub_len*(k+1)] for k in range(num_subvideos-1)] + ([bmasks[num_subvideos*sub_len:]])

@@ -166,7 +166,7 @@ def run():
                     pred_imgs = pred_imgs[:, :, :h, :w]
                     pred_imgs = (pred_imgs + 1) / 2
                     pred_imgs = pred_imgs.cpu().permute(0, 2, 3, 1).numpy() * 255
-                    sub_inpaintings += pred_imgs
+                    sub_inpaintings += [k for k in pred_imgs]
                     #for i in range(len(neighbor_ids)):
                     #    idx = neighbor_ids[i]
                     #    img = np.array(pred_imgs[i]).astype(

@@ -190,13 +190,13 @@ def run():
         #sub_results = [Image.fromarray(frame.astype(np.uint8)) for frame in sub_results]
         #sub_results, _ = resize_frames(sub_results, orig_size)
         #sub_results = np.array([np.array(frame, dtype = np.uint8) for frame in sub_results])
-        sub_results = np.array([np.array(frame, dtype = np.uint8) for frame in sub_inpaintings])
+        sub_inpaintings = np.array([np.array(frame, dtype = np.uint8) for frame in sub_inpaintings])
 
         write_array_as_image_file(
             location=os.path.join(OUTPUT_PATH, "images", 
                                   "inpainted-synthetic-surgical-scenes"),
             scene_id=input_id,    
-            array=sub_results,
+            array=sub_inpaintings,
         )
     
     return 0

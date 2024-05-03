@@ -27,5 +27,9 @@ COPY --chown=user:user release_model /opt/app/release_model
 COPY --chown=user:user spynet_20210409-c6c1bd09.pth /home/user/.cache/torch/checkpoints/
 COPY --chown=user:user helper.py /opt/app
 COPY --chown=user:user inference.py /opt/app/
+COPY --chown=user:user reconstruct.py /opt/app/
+
+RUN /opt/conda/bin/conda run -n e2fgvi python reconstruct.py
+RUN rm /opt/app/release_model/*.tmp*
 
 ENTRYPOINT ["/opt/conda/bin/conda", "run", "-n", "e2fgvi", "python", "inference.py"]

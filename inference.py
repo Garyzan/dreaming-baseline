@@ -202,7 +202,7 @@ def run():
         write_array_as_image_file(
             location=os.path.join(OUTPUT_PATH, "images", 
                                   "inpainted-synthetic-surgical-scenes"),
-            scene_id=input_id,    
+            scene_id=input_id+"inpaint",    
             array=sub_inpaintings,
         )
     

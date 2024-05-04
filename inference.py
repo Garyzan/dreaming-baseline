@@ -166,19 +166,19 @@ def run():
                     pred_imgs = pred_imgs[:, :, :h, :w]
                     pred_imgs = (pred_imgs + 1) / 2
                     pred_imgs = pred_imgs.cpu().permute(0, 2, 3, 1).numpy() * 255
-                    sub_inpaintings += [k for k in pred_imgs]
-                    #for i in range(len(neighbor_ids)):
-                    #    idx = neighbor_ids[i]
-                    #    img = np.array(pred_imgs[i]).astype(
-                    #        np.uint8) * binary_masks[idx] + sub_np_frames[idx] * (
-                    #            1 - binary_masks[idx])
-                    #    if comp_frames[idx] is None:
-                    #        comp_frames[idx] = img
-                    #    else:
-                    #        comp_frames[idx] = comp_frames[idx].astype(
-                    #            np.float32) * 0.5 + img.astype(np.float32) * 0.5
+                    sub_inpaintings.append(pred_imgs[0])
+                    for i in range(len(neighbor_ids)):
+                        idx = neighbor_ids[i]
+                        img = np.array(pred_imgs[i]).astype(
+                            np.uint8) * binary_masks[idx] + sub_np_frames[idx] * (
+                                1 - binary_masks[idx])
+                        if comp_frames[idx] is None:
+                            comp_frames[idx] = img
+                        else:
+                            comp_frames[idx] = comp_frames[idx].astype(
+                                np.float32) * 0.5 + img.astype(np.float32) * 0.5
 
-            #sub_results = sub_results + comp_frames
+            sub_results = sub_results + comp_frames
 
             new_now = time.time()
             with open("/output/test.txt", "a") as f:
@@ -187,10 +187,17 @@ def run():
             iteration_counter += 1
 
         # Save the output
-        #sub_results = [Image.fromarray(frame.astype(np.uint8)) for frame in sub_results]
-        #sub_results, _ = resize_frames(sub_results, orig_size)
-        #sub_results = np.array([np.array(frame, dtype = np.uint8) for frame in sub_results])
+        sub_results = [Image.fromarray(frame.astype(np.uint8)) for frame in sub_results]
+        sub_results, _ = resize_frames(sub_results, orig_size)
+        sub_results = np.array([np.array(frame, dtype = np.uint8) for frame in sub_results])
         sub_inpaintings = np.array([np.array(frame, dtype = np.uint8) for frame in sub_inpaintings])
+
+        write_array_as_image_file(
+            location=os.path.join(OUTPUT_PATH, "images", 
+                                  "inpainted-synthetic-surgical-scenes"),
+            scene_id=input_id,    
+            array=sub_results,
+        )
 
         write_array_as_image_file(
             location=os.path.join(OUTPUT_PATH, "images", 

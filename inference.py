@@ -85,7 +85,6 @@ def run():
         
         orig_size = np.asarray(input_array).shape[1:3]
         orig_size = (orig_size[1], orig_size[0])
-        shape = np.array(np.asarray(input_array).shape)
         
         input_array = [Image.fromarray(frame) for frame in input_array]
         mask_array = [Image.fromarray(np.reshape(mask, mask.shape[:-1])) for mask in mask_array]
@@ -104,7 +103,6 @@ def run():
         frames = input_array
         frames, size = resize_frames(frames, size)
         h, w = size[1], size[0]
-        shape[1] , shape[2] = h, w
         video_length = len(frames)
         np_frames = [np.array(f).astype(np.uint8) for f in frames]
 
@@ -167,7 +165,7 @@ def run():
                     pred_imgs = pred_imgs[:, :, :h, :w]
                     pred_imgs = (pred_imgs + 1) / 2
                     pred_imgs = pred_imgs.cpu().permute(0, 2, 3, 1).numpy() * 255
-                    comp_frames.append(pred_imgs[0])
+                    comp_frames.append(pred_imgs[0:4])
                     for i in range(len(neighbor_ids)):
                         idx = neighbor_ids[i]
                         img = np.array(pred_imgs[i]).astype(

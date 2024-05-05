@@ -17,6 +17,7 @@ Any container that shows the same behavior will do, this is purely an example of
 
 Happy programming!
 """
+import cv2
 from pathlib import Path
 from glob import glob
 import os
@@ -36,9 +37,12 @@ RESOURCE_PATH = Path("resources")
 
 neighbor_stride = 5
 
+k = Image.open()
+k.resize()
+
 # resize frames
-def resize_frames(frames, size):
-    frames = [f.resize(size) for f in frames]
+def resize_frames(frames, size, meth = Image.BICUBIC):
+    frames = [f.resize(size, meth) for f in frames]
     return frames, size
 
 # sample reference frames from the whole video
@@ -106,10 +110,12 @@ def run():
         video_length = len(frames)
         np_frames = [np.array(f).astype(np.uint8) for f in frames]
 
-        tmasks, size = resize_frames(mask_array, size)
+        tmasks, size = resize_frames(mask_array, size, Image.NEAREST)
+        tmasks = [Image(255 * cv2.dilate(np.array(np.array(m.convert("L")) > 0, np.uint8)),
+                        cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3)),
+                        iterations = 4) for m in tmasks]
+
         bmasks = [1 - np.expand_dims((np.array(m) != 0).astype(np.uint8), 2) for m in tmasks]
-        with open("/output/test.txt", "a") as f:
-            f.write(str(np.bincount(np.reshape(tmasks[0], (-1)))) + "\n")
 
         del input_array, mask_array
 

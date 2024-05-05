@@ -37,9 +37,6 @@ RESOURCE_PATH = Path("resources")
 
 neighbor_stride = 5
 
-k = Image.open()
-k.resize()
-
 # resize frames
 def resize_frames(frames, size, meth = Image.BICUBIC):
     frames = [f.resize(size, meth) for f in frames]

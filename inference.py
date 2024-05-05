@@ -113,6 +113,8 @@ def run():
         with open("/output/test.txt", "a") as f:
             f.write(str(np.bincount(np.reshape(tmasks[0], (-1)))) + "\n")
 
+        del input_array, mask_array
+
         sub_len = 120
         num_subvideos = (video_length // sub_len) + 1
         tmasks = [tmasks[sub_len * k : sub_len*(k+1)] for k in range(num_subvideos-1)] + ([tmasks[num_subvideos*sub_len:]])
@@ -127,7 +129,6 @@ def run():
 
         # completing holes by e2fgvi
         sub_results = []
-        sub_inpaintings = []
         iteration_counter = 1
         for sub_tmasks, binary_masks, sub_frames, sub_np_frames in zip(tmasks,
                                                         bmasks,
@@ -166,7 +167,7 @@ def run():
                     pred_imgs = pred_imgs[:, :, :h, :w]
                     pred_imgs = (pred_imgs + 1) / 2
                     pred_imgs = pred_imgs.cpu().permute(0, 2, 3, 1).numpy() * 255
-                    sub_inpaintings.append(pred_imgs[0])
+                    comp_frames.append(pred_imgs[0])
                     for i in range(len(neighbor_ids)):
                         idx = neighbor_ids[i]
                         img = np.array(pred_imgs[i]).astype(
@@ -190,20 +191,12 @@ def run():
         sub_results = [Image.fromarray(frame.astype(np.uint8)) for frame in sub_results]
         sub_results, _ = resize_frames(sub_results, orig_size)
         sub_results = np.array([np.array(frame, dtype = np.uint8) for frame in sub_results])
-        sub_inpaintings = np.array([np.array(frame, dtype = np.uint8) for frame in sub_inpaintings])
 
         write_array_as_image_file(
             location=os.path.join(OUTPUT_PATH, "images", 
                                   "inpainted-synthetic-surgical-scenes"),
             scene_id=input_id,    
             array=sub_results,
-        )
-
-        write_array_as_image_file(
-            location=os.path.join(OUTPUT_PATH, "images", 
-                                  "inpainted-synthetic-surgical-scenes"),
-            scene_id=input_id+"inpaint",    
-            array=sub_inpaintings,
         )
     
     return 0

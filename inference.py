@@ -108,7 +108,7 @@ def run():
         np_frames = [np.array(f).astype(np.uint8) for f in frames]
 
         tmasks, size = resize_frames(mask_array, size, Image.NEAREST)
-        tmasks = [Image(255 * cv2.dilate(np.array(np.array(m.convert("L")) > 0, np.uint8),
+        tmasks = [Image.fromarray(255 * cv2.dilate(np.array(np.array(m.convert("L")) > 0, np.uint8),
                         cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3)),
                         iterations = 4)) for m in tmasks]
 

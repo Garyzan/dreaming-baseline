@@ -168,7 +168,7 @@ def run():
                     pred_imgs = pred_imgs[:, :, :h, :w]
                     pred_imgs = (pred_imgs + 1) / 2
                     pred_imgs = pred_imgs.cpu().permute(0, 2, 3, 1).numpy() * 255
-                    comp_frames.append([pred_imgs[k].astype(np.uint8) for k in range(5)])
+                    comp_frames += [pred_imgs[k].astype(np.uint8) for k in range(5)]
                     for i in range(len(neighbor_ids)):
                         idx = neighbor_ids[i]
                         img = np.array(pred_imgs[i]).astype(

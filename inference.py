@@ -22,7 +22,6 @@ from pathlib import Path
 from glob import glob
 import os
 import numpy as np
-import time
 import torch
 from PIL import Image
 import importlib
@@ -52,7 +51,6 @@ def get_ref_index(f, neighbor_ids, length):
     return ref_index
 
 def run():
-    now = time.time()
     # check if cuda is available
     show_torch_cuda_info()
 
@@ -69,10 +67,6 @@ def run():
 
     # iterate over all test scenes
     for i, file in enumerate(input_files):
-        new_now = time.time()
-        with open("/output/test.txt", "w") as f:
-            f.write("Time loading image files: " + str(new_now - now) + " s\n")
-        now = new_now
 
         # load the image and corresponding mask
         input_id = get_scene_id(file)
@@ -125,14 +119,8 @@ def run():
         frames = [frames[sub_len * k : sub_len*(k+1)] for k in range(num_subvideos-1)] + ([frames[num_subvideos*sub_len:]])
         np_frames = [np_frames[sub_len * k : sub_len*(k+1)] for k in range(num_subvideos-1)] + ([np_frames[num_subvideos*sub_len:]])
 
-        new_now = time.time()
-        with open("/output/test.txt", "a") as f:
-            f.write("Time preparing image arrays: " + str(new_now - now) + " s\n")
-        now = new_now
-
         # completing holes by e2fgvi
         sub_results = []
-        iteration_counter = 1
         for sub_tmasks, binary_masks, sub_frames, sub_np_frames in zip(tmasks,
                                                         bmasks,
                                                         frames,
@@ -182,12 +170,6 @@ def run():
                                 np.float32) * 0.5 + img.astype(np.float32) * 0.5
 
             sub_results = sub_results + comp_frames
-
-            new_now = time.time()
-            with open("/output/test.txt", "a") as f:
-                f.write(f"Time spent in iteration {iteration_counter}: " + str(new_now - now) + " s\n")
-            now = new_now
-            iteration_counter += 1
 
         # Save the output
         sub_results = [Image.fromarray(frame.astype(np.uint8)) for frame in sub_results]

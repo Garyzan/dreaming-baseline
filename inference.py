@@ -92,7 +92,7 @@ def run():
         
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        size = (432, 240)
+        size = (864, 480)
 
         net = importlib.import_module('model.e2fgvi_hq')
         model = net.InpaintGenerator().to(device)
@@ -108,15 +108,17 @@ def run():
         np_frames = [np.array(f).astype(np.uint8) for f in frames]
 
         tmasks, size = resize_frames(mask_array, size, Image.NEAREST)
-        tmasks = [Image.fromarray(255 * cv2.dilate(np.array(np.array(m.convert("L")) > 0, np.uint8),
-                        cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3)),
-                        iterations = 4)) for m in tmasks]
+        tmasks = [1 - np.array(np.array(m.convert("L")) > 0, np.uint8) for m in tmasks]
+        tmasks = [cv2.dilate(m,
+                             cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3)),
+                             iterations = 4) for m in tmasks]
+        tmasks = [Image.fromarray(255 * (1 - m)) for m in tmasks]
 
         bmasks = [1 - np.expand_dims((np.array(m) != 0).astype(np.uint8), 2) for m in tmasks]
 
         del input_array, mask_array
 
-        sub_len = 120
+        sub_len = 30
         num_subvideos = (video_length // sub_len) + 1
         tmasks = [tmasks[sub_len * k : sub_len*(k+1)] for k in range(num_subvideos-1)] + ([tmasks[num_subvideos*sub_len:]])
         bmasks = [bmasks[sub_len * k : sub_len*(k+1)] for k in range(num_subvideos-1)] + ([bmasks[num_subvideos*sub_len:]])
@@ -168,7 +170,6 @@ def run():
                     pred_imgs = pred_imgs[:, :, :h, :w]
                     pred_imgs = (pred_imgs + 1) / 2
                     pred_imgs = pred_imgs.cpu().permute(0, 2, 3, 1).numpy() * 255
-                    #comp_frames += [pred_imgs[k].astype(np.uint8) for k in range(5)]
                     for i in range(len(neighbor_ids)):
                         idx = neighbor_ids[i]
                         img = np.array(pred_imgs[i]).astype(
